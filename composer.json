@@ -1,0 +1,37 @@
+{
+  "name": "ionscript/ions-http",
+  "description": "provides an easy interface for performing Hyper-Text Transfer Protocol (HTTP) requests",
+  "license": "GPL-3.0+",
+  "minimum-stability": "dev",
+  "authors": [
+    {
+      "name": "Serge Shportko",
+      "email": "ionscript.inc@gmail.com"
+    }
+  ],
+  "keywords": [
+    "ions",
+    "http"
+  ],
+  "homepage": "https://github.com/ionscript/ions-http",
+  "require": {
+    "php": "^5.6 || ^7.0",
+    "ionscript/ions-std": "master",
+    "ionscript/ions-uri": "master"
+  },
+  "autoload": {
+    "psr-4": {
+      "Ions\\Http\\": "src/"
+    }
+  },
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/ionscript/ions-std.git"
+    },
+    {
+      "type": "git",
+      "url": "https://github.com/ionscript/ions-uri.git"
+    }
+  ]
+}
