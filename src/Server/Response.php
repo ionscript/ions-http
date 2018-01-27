@@ -77,7 +77,7 @@ class Response extends HttpResponse
 
         header($status);
 
-        foreach ($this->getHeaders() as $header) {
+        foreach ($this->getHeaders()->getHeaders() as $header) {
 
             if ($header instanceof HeaderInterface) {
                 header($header->toString(), false);

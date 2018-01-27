@@ -86,9 +86,9 @@ class Headers
             }
 
             if (preg_match("/^[ \t][^\r\n]*$/", $line, $matches)) {
-                
+
                 $current['line'] .= trim($line);
-                
+
                 continue;
             }
 
@@ -156,11 +156,19 @@ class Headers
 
         if (array_key_exists($key, $this->headers)) {
             unset($this->headers[$key]);
-            
+
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * @return array
+     */
+    public function getHeaders()
+    {
+        return  $this->headers;
     }
 
     /**
@@ -251,16 +259,9 @@ class Headers
         $headers = [];
 
         foreach ($this->headers as $header) {
-
             if ($header instanceof Header\HeaderInterface) {
-                
                 $name = $header->getName();
-
-                if (!isset($headers[$name])) {
-                    $headers[$name] = [];
-                }
-
-                $headers[$name][] = $header->getValue();
+                $headers[$name] = $header->getValue();
             }
         }
 
