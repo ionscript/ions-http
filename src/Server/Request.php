@@ -28,14 +28,19 @@ class Request extends HttpRequest
     protected $requestUri;
 
     /**
-     * @var string|null
+     * @var array
      */
     protected $serverParams;
 
     /**
-     * @var string|null
+     * @var array
      */
     protected $envParams;
+
+    /**
+     * @var array
+     */
+    protected $cookieParams;
 
     /**
      * Request constructor.
@@ -53,7 +58,7 @@ class Request extends HttpRequest
         }
 
         if ($_COOKIE) {
-            $this->setCookies($_COOKIE);
+            $this->setCookie($_COOKIE);
         }
 
         if ($_FILES) {
@@ -104,11 +109,38 @@ class Request extends HttpRequest
      * @param $cookie
      * @return $this
      */
-    public function setCookies($cookie)
+    public function setCookie(array $cookie)
     {
-        $this->getHeaders()->addHeader(new Cookie((array)$cookie));
+        $this->cookieParams = $cookie;
+        $this->getHeaders()->addHeader(new Cookie($this->cookieParams));
 
         return $this;
+    }
+
+    /**
+     * @param null $name
+     * @return null|string
+     */
+    public function getCookie($name = null)
+    {
+        if ($name === null) {
+            return $this->cookieParams;
+        }
+
+        return $this->cookieParams[$name];
+    }
+
+    /**
+     * @param null $name
+     * @return bool
+     */
+    public function hasCookie($name = null)
+    {
+        if ($name === null) {
+            return (bool)$this->cookieParams;
+        }
+
+        return array_key_exists($name, $this->cookieParams);
     }
 
     /**
@@ -390,7 +422,7 @@ class Request extends HttpRequest
     }
 
     /**
-     * @return mixed|string
+     * @return mixed
      */
     protected function detectRequestUri()
     {
@@ -442,7 +474,7 @@ class Request extends HttpRequest
     }
 
     /**
-     * @return bool|mixed|null|string
+     * @return mixed
      */
     protected function detectBaseUrl()
     {
@@ -505,7 +537,7 @@ class Request extends HttpRequest
     }
 
     /**
-     * @return mixed|null|string
+     * @return mixed
      */
     protected function detectBasePath()
     {
