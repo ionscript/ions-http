@@ -30,17 +30,17 @@ class Request extends HttpRequest
     /**
      * @var array
      */
-    protected $serverParams;
+    protected $serverParams = [];
 
     /**
      * @var array
      */
-    protected $envParams;
+    protected $envParams = [];
 
     /**
      * @var array
      */
-    protected $cookieParams;
+    protected $cookieParams = [];
 
     /**
      * Request constructor.
