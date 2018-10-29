@@ -59,12 +59,12 @@ abstract class Message extends StdMessage
     }
 
     /**
-     * @return static
+     * @return Headers $headers
      */
     public function getHeaders()
     {
-        if (!$this->headers) {
-            $this->headers = Headers::create($this->headers);
+        if ($this->headers === null || is_string($this->headers)) {
+            $this->headers = is_string($this->headers) ? Headers::create($this->headers) : new Headers();
         }
 
         return $this->headers;

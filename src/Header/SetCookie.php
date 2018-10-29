@@ -194,7 +194,7 @@ class SetCookie implements HeaderInterface
     /**
      * @return string
      */
-    public function getFieldName()
+    public function getName()
     {
         return 'Set-Cookie';
     }
@@ -202,15 +202,15 @@ class SetCookie implements HeaderInterface
     /**
      * @return string
      */
-    public function getFieldValue()
+    public function getValue()
     {
         if ($this->getName() === '') {
             return '';
         }
 
-        $value = urlencode($this->getValue());
+        $value = urlencode($this->value);
 
-        if ($this->hasQuoteFieldValue()) {
+        if ($this->hasQuoteValue()) {
             $value = '"' . $value . '"';
         }
 
@@ -270,14 +270,6 @@ class SetCookie implements HeaderInterface
     }
 
     /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
      * @param $value
      * @return $this
      */
@@ -286,14 +278,6 @@ class SetCookie implements HeaderInterface
         $this->value = $value;
 
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getValue()
-    {
-        return $this->value;
     }
 
     /**
@@ -522,7 +506,7 @@ class SetCookie implements HeaderInterface
     /**
      * @return bool
      */
-    public function hasQuoteFieldValue()
+    public function hasQuoteValue()
     {
         return $this->quoteFieldValue;
     }
@@ -619,6 +603,6 @@ class SetCookie implements HeaderInterface
      */
     public function toString()
     {
-        return 'Set-Cookie: ' . $this->getFieldValue();
+        return 'Set-Cookie: ' . $this->getValue();
     }
 }

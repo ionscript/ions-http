@@ -392,7 +392,7 @@ class Socket implements StreamInterface, AdapterInterface
         if ($statusCode === 304 || $statusCode === 204 ||
             $this->method === Request::METHOD_HEAD) {
             $connection = $headers->get('connection');
-            if ($connection && $connection->getFieldValue() === 'close') {
+            if ($connection && $connection->getValue() === 'close') {
                 $this->close();
             }
             return $response;
@@ -401,7 +401,7 @@ class Socket implements StreamInterface, AdapterInterface
         $transferEncoding = $headers->get('Transfer-Encoding');
         $contentLength = $headers->get('Content-Length');
         if ($transferEncoding !== false) {
-            if (strtolower($transferEncoding->getFieldValue()) === 'chunked') {
+            if (strtolower($transferEncoding->getValue()) === 'chunked') {
                 do {
                     $line  = fgets($this->socket);
                     $this->_checkSocketReadTimeout();
@@ -454,7 +454,7 @@ class Socket implements StreamInterface, AdapterInterface
             } else {
                 $this->close();
                 throw new \RuntimeException('Cannot handle "' .
-                    $transferEncoding->getFieldValue() . '" transfer encoding');
+                    $transferEncoding->getValue() . '" transfer encoding');
             }
 
             // We automatically decode chunked-messages when writing to a stream
@@ -469,7 +469,7 @@ class Socket implements StreamInterface, AdapterInterface
             if (is_array($contentLength)) {
                 $contentLength = $contentLength[count($contentLength) - 1];
             }
-            $contentLength = $contentLength->getFieldValue();
+            $contentLength = $contentLength->getValue();
 
             $currentPos = ftell($this->socket);
 
@@ -520,7 +520,7 @@ class Socket implements StreamInterface, AdapterInterface
         }
 
         $connection = $headers->get('connection');
-        if ($connection && $connection->getFieldValue() === 'close') {
+        if ($connection && $connection->getValue() === 'close') {
             $this->close();
         }
 

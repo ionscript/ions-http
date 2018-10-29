@@ -26,7 +26,7 @@ class AcceptCharset extends AbstractAccept
      */
     public function toString()
     {
-        return 'Accept-Charset: ' . $this->getFieldValue();
+        return 'Accept-Charset: ' . $this->getValue();
     }
 
     /**

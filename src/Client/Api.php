@@ -2,7 +2,7 @@
 
 namespace Ions\Http\Client;
 
-use Client as HttpClient;
+use Ions\Http\Client\Client;
 use Ions\Std\Xml\Security;
 
 /**
@@ -11,79 +11,44 @@ use Ions\Std\Xml\Security;
  */
 class Api
 {
-    /**
-     * @var string
-     */
-    protected $apiPath;
+    protected $path;
 
-    /**
-     * @var string
-     */
-    protected $errorMsg;
+    protected $error;
 
-    /**
-     * @var string
-     */
-    protected $statusCode;
+    protected $status;
 
-    /**
-     * @var bool
-     */
     protected $success = false;
 
-    /**
-     * @var
-     */
     protected $url;
 
-    /**
-     * @var array
-     */
-    protected $queryParams = [];
+    protected $query = [];
 
-    /**
-     * @var array
-     */
     protected $headers = [];
 
-    /**
-     * @var array
-     */
     protected $api = [];
 
-    /**
-     * @var
-     */
-    protected $httpClient;
+    protected $client;
 
-    /**
-     * Api constructor.
-     * @param HttpClient|null $httpClient
-     */
-    public function __construct(HttpClient $httpClient = null)
-    {
-        $this->setHttpClient($httpClient ?: new HttpClient);
-    }
+//    public function __construct(HttpClient $httpClient = null)
+//    {
+//        $this->setHttpClient($httpClient ?: new HttpClient);
+//    }
 
-    /**
-     * @param $name
-     * @param $params
-     * @return bool|mixed
-     * @throws \RuntimeException
-     */
     public function __call($name, $params)
     {
         // API specifications
         if (!empty($this->api[$name])) {
             $api = $this->api[$name]($params);
         } else {
-            if (!empty($this->apiPath)) {
-                $fileName = $this->apiPath . '/' . $name . '.php';
-                if (file_exists($fileName)) {
-                    $apiFunc = function ($params) use ($fileName) {
-                        return include $fileName;
+            if ($this->path) {
+                $file = $this->path . '/' . $name . '.php';
+
+                if (file_exists($file)) {
+                    $callback = function ($params) use ($file) {
+                        return include $file;
                     };
-                    $api = $apiFunc($params);
+
+                    $api = $callback($params);
                 }
             }
         }
@@ -95,30 +60,39 @@ class Api
         }
 
         // Build HTTP request
-        $client = $this->getHttpClient();
+        $client = $this->getClient();
         $client->resetParameters();
-        $this->errorMsg = null;
-        $this->errorCode = null;
+
+        $this->error = null;
+        $this->status = null;
+
         if (isset($api['method'])) {
             $client->setMethod($api['method']);
         } else {
             $client->setMethod('GET');
         }
-        if (!empty($this->queryParams)) {
+
+        if ($this->queryParams) {
             $client->setParameterGet($this->queryParams);
         }
+
         if (isset($api['body'])) {
             $client->setRawBody($api['body']);
         }
+
         $headers = [];
-        if (!empty($this->headers)) {
+
+        if ($this->headers) {
             $headers = $this->getHeaders();
         }
+
         if (isset($api['header'])) {
             $headers = array_merge($headers, $api['header']);
         }
+
         $client->setHeaders($headers);
         $url = $this->getUrl();
+
         if (isset($api['url'])) {
             if (0 === strpos($api['url'], 'http')) {
                 $url = $api['url'];
@@ -126,176 +100,137 @@ class Api
                 $url .= $api['url'];
             }
         }
+
         $client->setUri($url);
+
         if (isset($api['response']['format'])) {
             $formatOutput = strtolower($api['response']['format']);
         }
-        $validCodes = [200];
-        if (isset($api['response']['valid_codes'])) {
-            $validCodes = $api['response']['valid_codes'];
+
+        $codes = [200];
+
+        if (isset($api['response']['codes'])) {
+            $codes = $api['response']['codes'];
         }
 
         // Send HTTP request
-        $response         = $client->send();
-        $this->statusCode = $response->getStatusCode();
-        if (in_array($this->statusCode, $validCodes)) {
+        $response = $client->send();
+        $this->status = $response->getStatusCode();
+
+        if (in_array($this->status, $codes)) {
             $this->success = true;
-            if (isset($formatOutput)) {
-                if ($formatOutput === 'json') {
-                    return json_decode($response->getBody(),true);
-                } elseif ($formatOutput === 'xml') {
-                	$xml = Security::scan($response->getBody());
-                    return json_decode(json_encode((array) $xml), 1);
+            if (isset($format)) {
+                if ($format === 'json') {
+                    return json_decode($response->getBody(), true);
+                } elseif ($format === 'xml') {
+                    $xml = Security::scan($response->getBody());
+                    return json_decode(json_encode((array)$xml), 1);
                 }
             }
+
             return $response->getBody();
         }
-        $this->errorMsg = $response->getBody();
-        $this->success  = false;
+
+        $this->error = $response->getBody();
+        $this->success = false;
         return false;
     }
 
-    /**
-     * @param $apiPath
-     * @return $this
-     * @throws \InvalidArgumentException
-     */
-    public function setApiPath($apiPath)
+    public function __isset($name)
     {
-        if (!is_dir($apiPath)) {
-            throw new \InvalidArgumentException("Tha path $apiPath specified is not valid");
+        return array_key_exists($name, $this->api);
+    }
+
+    public function setPath($path)
+    {
+        if (!is_dir($path)) {
+            throw new \InvalidArgumentException("Tha path $path specified is not valid");
         }
-        $this->apiPath = $apiPath;
+
+        $this->path = $path;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getApiPath()
+    public function getPath()
     {
-        return $this->apiPath;
+        return $this->path;
     }
 
-    /**
-     * @param null $url
-     * @return $this
-     */
     public function setUrl($url = null)
     {
         $this->url = $url;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     public function getUrl()
     {
         return $this->url;
     }
 
-    /**
-     * @param array|null $query
-     * @return $this
-     */
-    public function setQueryParams(array $query = null)
+    public function setQuery(array $query = null)
     {
-        $this->queryParams = $query;
+        $this->query = $query;
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getQueryParams()
+    public function getQuery()
     {
-        return $this->queryParams;
+        return $this->query;
     }
 
-    /**
-     * @param array|null $headers
-     * @return $this
-     */
     public function setHeaders(array $headers = null)
     {
         $this->headers = $headers;
         return $this;
     }
 
-    /**
-     * @return array
-     */
     public function getHeaders()
     {
         return $this->headers;
     }
 
-    /**
-     * @param HttpClient $httpClient
-     * @return $this
-     */
-    public function setHttpClient(HttpClient $httpClient)
+    public function setClient(Client $client)
     {
-        $this->httpClient = $httpClient;
+        $this->client = $client;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getHttpClient()
+    public function getClient()
     {
+        $this->setClient($this->client ?: new Client);
         return $this->httpClient;
     }
 
-    /**
-     * @return string
-     */
-    public function getErrorMsg()
+    public function getError()
     {
-        return $this->errorMsg;
+        return $this->error;
     }
 
-    /**
-     * @return string
-     */
-    public function getStatusCode()
+    public function getStatus()
     {
-        return $this->statusCode;
+        return $this->status;
     }
 
-    /**
-     * @return bool
-     */
     public function isSuccess()
     {
         return $this->success;
     }
 
-    /**
-     * @param $name
-     * @param $api
-     * @return $this
-     * @throws \InvalidArgumentException
-     */
-    public function setApi($name, $api)
+    public function set($name, $api)
     {
         if (!is_string($name)) {
             throw new \InvalidArgumentException('The name of the API must be a string');
         }
+
         if (!is_callable($api)) {
             throw new \InvalidArgumentException('The value of the API must be a callable');
         }
+
         $this->api[$name] = $api;
         return $this;
     }
 
-    /**
-     * @param $name
-     * @return mixed
-     */
-    public function getApi($name)
+    public function get($name)
     {
         return $this->api[$name];
     }
@@ -303,10 +238,10 @@ class Api
     /**
      * @return $this
      */
-    public function resetLastResponse()
+    public function resetResponse()
     {
-        $this->success    = false;
-        $this->errorMsg   = null;
+        $this->success = false;
+        $this->errorMsg = null;
         $this->statusCode = null;
         return $this;
     }

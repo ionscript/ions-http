@@ -350,38 +350,6 @@ class Request extends Message implements RequestInterface
     }
 
     /**
-     * @param null $name
-     * @param bool $default
-     * @return bool|Headers|mixed|static
-     */
-    public function getHeaders($name = null, $default = false)
-    {
-        if ($this->headers === null || is_string($this->headers)) {
-            $this->headers = is_string($this->headers) ? Headers::create($this->headers) : new Headers();
-        }
-
-        if ($name === null) {
-            return $this->headers;
-        }
-
-        if ($this->headers->has($name)) {
-            return $this->headers->get($name);
-        }
-
-        return $default;
-    }
-
-    /**
-     * @param $name
-     * @param bool $default
-     * @return bool|Headers|Request|mixed
-     */
-    public function getHeader($name, $default = false)
-    {
-        return $this->getHeaders($name, $default);
-    }
-
-    /**
      * @return bool
      */
     public function isOptions()

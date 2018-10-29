@@ -458,7 +458,7 @@ class Request extends HttpRequest
             return preg_replace('#^[^/:]+://[^/]+#', '', $requestUri);
         }
 
-        $origPathInfo = isset($serverr['ORIG_PATH_INFO']) ? $serverr['ORIG_PATH_INFO'] : '';
+        $origPathInfo = isset($server['ORIG_PATH_INFO']) ? $server['ORIG_PATH_INFO'] : '';
 
         if ($origPathInfo !== null) {
             $queryString = isset($server['QUERY_STRING']) ? $server['QUERY_STRING'] : '';

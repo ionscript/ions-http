@@ -475,7 +475,7 @@ class Response extends Message implements ResponseInterface
 
         $return = gzinflate(substr($body, 10));
 
-        if ($return) {
+        if (!$return) {
             throw new \RuntimeException('Error occurred during gzip inflation');
         }
 

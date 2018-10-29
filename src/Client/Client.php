@@ -249,7 +249,7 @@ class Client
     /**
      * @return int
      */
-    public function getRedirectionsCount()
+    public function getRedirectionCount()
     {
         return $this->redirectCounter;
     }
@@ -580,8 +580,8 @@ class Client
         $headers = $this->getRequest()->getHeaders();
 
         if ($headers instanceof Headers) {
-            if ($headers->get($name)) {
-                return $headers->get($name)->getFieldValue();
+            if ($headers->has($name)) {
+                return $headers->get($name)->getValue();
             }
         }
         return false;
@@ -802,8 +802,8 @@ class Client
 
             // cookies
             $cookie = $this->prepareCookies($uri->getHost(), $uri->getPath(), $secure);
-            if ($cookie->getFieldValue()) {
-                $headers['Cookie'] = $cookie->getFieldValue();
+            if ($cookie->getValue()) {
+                $headers['Cookie'] = $cookie->getValue();
             }
 
             if (is_resource($body) && !($adapter instanceof StreamInterface)) {
@@ -848,7 +848,7 @@ class Client
             }
 
             if ($response->isRedirect() && ($response->getHeaders()->has('Location'))) {
-                $location = trim($response->getHeaders()->get('Location')->getFieldValue());
+                $location = trim($response->getHeaders()->get('Location')->getValue());
 
                 if ($response->getStatusCode() === 303 ||
                     ((!$this->config['strictredirects']) && ($response->getStatusCode() == 302 ||
@@ -1048,9 +1048,9 @@ class Client
             }
         }
 
-        $requestHeaders = $this->getRequest()->getHeaders();
+        $requestHeaders = $this->getRequest()->getHeaders()->getHeaders();
         foreach ($requestHeaders as $requestHeaderElement) {
-            $headers[$requestHeaderElement->getFieldName()] = $requestHeaderElement->getFieldValue();
+            $headers[$requestHeaderElement->getName()] = $requestHeaderElement->getValue();
         }
         return $headers;
     }
@@ -1085,7 +1085,7 @@ class Client
 
         if (count($this->getRequest()->getPost()->toArray()) > 0 || $totalFiles > 0) {
             if (stripos($this->getEncType(), self::ENC_FORMDATA) === 0) {
-                $boundary = '---ZENDHTTPCLIENT-' . md5(microtime());
+                $boundary = '---IONSHTTPCLIENT-' . md5(microtime());
                 $this->setEncType(self::ENC_FORMDATA, $boundary);
 
                 $params = self::flattenParametersArray($this->getRequest()->getPost()->toArray());

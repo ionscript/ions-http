@@ -159,9 +159,8 @@ class Stream extends Response
 
         $headers = $response->getHeaders();
         foreach ($headers as $header) {
-
-            if ($header->getFieldName() === 'Content-Length') {
-                $response->setContentLength((int) $header->getFieldValue());
+            if ($header->getName() === 'Content-Length') {
+                $response->setContentLength((int) $header->getValue());
                 $contentLength = $response->getContentLength();
                 if (strlen($response->content) > $contentLength) {
                     throw new \OutOfRangeException(sprintf(
