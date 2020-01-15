@@ -23,16 +23,13 @@ class Api
 
     protected $query = [];
 
+    protected $queryParams = [];
+
     protected $headers = [];
 
     protected $api = [];
 
     protected $client;
-
-//    public function __construct(HttpClient $httpClient = null)
-//    {
-//        $this->setHttpClient($httpClient ?: new HttpClient);
-//    }
 
     public function __call($name, $params)
     {
@@ -198,7 +195,7 @@ class Api
     public function getClient()
     {
         $this->setClient($this->client ?: new Client);
-        return $this->httpClient;
+        return $this->client;
     }
 
     public function getError()
@@ -251,7 +248,7 @@ class Api
      */
     public function getResponseHeaders()
     {
-        $response = $this->httpClient->getResponse();
+        $response = $this->client->getResponse();
         if (empty($response)) {
             return [];
         }

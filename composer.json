@@ -5,8 +5,9 @@
   "minimum-stability": "dev",
   "authors": [
     {
-      "name": "Serge Shportko",
-      "email": "ionscript.inc@gmail.com"
+      "name": "Serhii Shportko",
+      "homepage": "https://github.com/ionscript",
+      "role": "developer"
     }
   ],
   "keywords": [
@@ -15,7 +16,7 @@
   ],
   "homepage": "https://github.com/ionscript/ions-http",
   "require": {
-    "php": "^5.6 || ^7.0",
+    "php": "^7.3",
     "ionscript/ions-std": "master",
     "ionscript/ions-uri": "master"
   },
